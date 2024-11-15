@@ -16,7 +16,7 @@
   
 //Aqui van los dialogos que se van a mostrar
   String[] Dialogos1 = {
-  "Mision Inicial: Abre la puerta" , 
+  "Usa WASD para moverte" , 
   "Mision final: Mata a Dios", 
   "Sin lectura",
   "Colision",
@@ -288,7 +288,7 @@ void setup() {
   
   boolean collision(int entradaPosX, int entradaPosY, int entradaTamanioX, int entradaTamanioY, 
   int hitPosX, int hitPosY, int hitTamanioX, int hitTamanioY){
-    //los primero 4 valores son del objeto que se a leer, 
+    //los primero 4 valores son del objeto que se a leer, representan 
     
     
     if((entradaPosX > hitPosX && entradaPosX < hitTamanioX)&&
