@@ -1,4 +1,9 @@
-
+  //Aqui se configura la carga de archivos
+    //Carga de imagenes
+    PImage imagenMenu;
+    
+    
+    
   //Aqui se configuran los inputs 
   int entradaDerecha;
   int entradaIzquierda;
@@ -13,6 +18,7 @@
   
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
+  boolean primeraAccionMenu  = true;
   
 //Aqui van los dialogos que se van a mostrar
   String[] Dialogos1 = {
@@ -39,6 +45,8 @@
   
   //Datos de enemigo
   int posX=0 , posY=0;
+  int posXEnemy1 = 0, posYEnemy1 = 0;
+  int posXEnemy2 = 0, posYEnemy2 = 0;  //Hay que hacer una variable de estas para cada enemigo, si no todos los proyectiles siguen la misma trayectoria
   
   int prueba1 = 50, prueba2 = 250;
 //Datos de lectura
@@ -56,6 +64,8 @@
 void setup() {
   size(1000,1000);
   background(#110025);
+  //Carga de documentos
+  imagenMenu = loadImage("PortadaDelJuego.jpg");
 }
   
 
@@ -185,7 +195,16 @@ void setup() {
         else{
           movAbajo = "Suspendido";
         }
-        proyectilStandar1(prueba1, prueba2, 20,40,JugadorX,JugadorY);
+        
+        
+        
+        //proyectiles   
+        
+        //Se escriben asi:
+        
+        //pryectilStandar(PocisionInicial X, PocisionInicialY, Tamanio X, Tamanio Y, DestinoX, DestinoY, posXEnemy#, posYEnemy#);
+        proyectilStandar1(500,0,20,20,1000,1000, posXEnemy2, posYEnemy2);
+        proyectilStandar1(prueba1, prueba2, 20,40,JugadorX,JugadorY, posXEnemy1, posYEnemy1);
         
         //Detecci[on de impactos al jugador
         //todas las acciones relacionadas deben ir debajo de esta funcion
@@ -216,6 +235,11 @@ void setup() {
         if(salud == 0) {
           println("Ejecutando escenaMuerte");
           escenaMuerte();
+        }
+        
+        if(primeraAccionMenu){
+          println("Ejecutando escenaMenu");
+          escenaMenu();
         }
         
         
@@ -249,7 +273,7 @@ void setup() {
   
   //Configuraci[on de proyectiles
   void proyectilStandar1(int posInicialX, int posInicialY, int tamanioX, int tamanioY, int destinoX,
-    int destinoY){
+    int destinoY, int posX, int posY){
       
     
    if(posX == 0){
@@ -268,7 +292,7 @@ void setup() {
     }
     if(destinoX < posX){
       posX = posX - velocidadProyectil1;
-    }
+    } //<>//
     
     if(destinoY > posY){
       posY = posY + velocidadProyectil1 ;
@@ -342,10 +366,30 @@ void setup() {
     texto("No pierdas la determinaci[on _inserteNick_ ",200,650,30);
     texto("tu puedes derrotar a _inserteBossName_",200,700,30);
     texto("Pulsa z para revivir", 300,800,30);
+    texto("Pulsa x para volver al menu",300, 820,30);
     if(entradaAceptar == 1) {
       salud = 1000;
       primeraAccionJuego = true;
     }
+    if(entradaRechazar == 1) {
+      salud = 1000;
+      primeraAccionJuego = true;
+      primeraAccionMenu = true;
+    }
   }
+  
+  void escenaMenu(){
+    background(#110025);
+    fill(#110025);
+    stroke(#E0E0E0);
+    strokeWeight(10);
+    rect(50,50,900,800);//Esto ser[ia remplazado por la imagen de portada del juego
+    image(imagenMenu,50,50,900,800);
     
+    texto("Pulsa z para inciar", 400,700,40);
+    if(entradaAceptar == 1) {
+    primeraAccionMenu = false;
+    valoresOriginalesJuego();
+    }
+  }
     
