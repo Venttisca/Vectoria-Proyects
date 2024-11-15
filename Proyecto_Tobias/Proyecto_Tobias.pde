@@ -11,9 +11,16 @@
   int intervalo = 16;//milisegundos
   int tiempoAnterior = 0;
   
+//Configuracion de escenas
+  boolean primeraAccionJuego = true;
+  
 //Aqui van los dialogos que se van a mostrar
   String[] Dialogos1 = {
-  "Mision Inicial: Abre la puerta" , "Mision final: Mata a Dios", "Sin lectura","Colision",
+  "Mision Inicial: Abre la puerta" , 
+  "Mision final: Mata a Dios", 
+  "Sin lectura",
+  "Colision",
+  "Game Over",
 };
 
 //Datos para el juego
@@ -27,7 +34,7 @@
   int salud = 1000;
   boolean impactoJugador;
   int coldownDanioRecibido = 1; // esta variable se encarga de almacenar el coldown
-  int coldown = 30; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
+  int coldown = 5; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
   int ultimoAtaque = 100;// Esto es para las pruebas
   
   //Datos de enemigo
@@ -36,6 +43,15 @@
   int prueba1 = 50, prueba2 = 250;
 //Datos de lectura
   String movDerecha = "Sin leer", movIzquierda = "Sin leer", movArriba = "Sin leer", movAbajo = "Sin leer";
+  
+  
+  //Esta funcion prepara el juego para iniciar de 0 luego de morir
+  void valoresOriginalesJuego(){
+    JugadorX = 500; JugadorY = 500; //Resetear la posici[on del jugador
+    posX = 0; posY = 0; //Resetear la posici[on de los enemigos
+    
+    primeraAccionJuego = false;
+  }
   
 void setup() {
   size(1000,1000);
@@ -57,6 +73,9 @@ void setup() {
    // if(tiempoActual - tiempoAnterior >= intervalo) {
       
         //valoresOriginalesEntrada();
+        if(primeraAccionJuego == true){
+          valoresOriginalesJuego();
+        }
         
         background(#110025);
       
@@ -87,13 +106,13 @@ void setup() {
         else{
           //valoresOriginalesEntrada();
         }
-        if (key == 'l' || key == 'L'){
+        if (key == 'z' || key == 'Z'){
           entradaAceptar = 1;
           
         }
         
           
-        if (key == 'z' || key == 'Z'){
+        if (key == 'x' || key == 'X'){
           entradaRechazar = 1;
           numDialogo1 = 1;
        }
@@ -119,6 +138,7 @@ void setup() {
         println("JugadorX " + JugadorX);
         println("JugadorY " + JugadorY);
         
+        if (salud > 0) {
         //Caja de Batalla
         fill(#110025);
         stroke(#E0E0E0);
@@ -187,6 +207,16 @@ void setup() {
         }
         println("coldownDanioRecibido: " + coldownDanioRecibido);
         barraDeVida();
+        
+   }//tEMPORAL
+        
+        
+        //Selector de escenas
+          //Escena de Game Over
+        if(salud == 0) {
+          println("Ejecutando escenaMuerte");
+          escenaMuerte();
+        }
         
         
         //Maquina de estados
@@ -300,4 +330,22 @@ void setup() {
     
     println("Barra de vida: " + salud);
   }
+  
+  void escenaMuerte() {
+    background(#110025);
+    fill(#110025);
+    stroke(#E0E0E0);
+    strokeWeight(10);
+    rect(100,100,800,500);// Esto ser[a remplazado con la imagen del game over
+    
+    texto(Dialogos1[4],400,300,40);// "Game over"
+    texto("No pierdas la determinaci[on _inserteNick_ ",200,650,30);
+    texto("tu puedes derrotar a _inserteBossName_",200,700,30);
+    texto("Pulsa z para revivir", 300,800,30);
+    if(entradaAceptar == 1) {
+      salud = 1000;
+      primeraAccionJuego = true;
+    }
+  }
+    
     
