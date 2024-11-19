@@ -34,7 +34,7 @@
   int numDialogo2 =2;
   int JugadorX = 500, JugadorY = 500; //Estas son las cordenadas del jugador
   int velocidadJugador = 4;
-  int velocidadProyectil1 = 1;
+  int velocidadProyectil1 = 2;
   
   // Barra de vida
   int salud = 1000;
@@ -44,10 +44,10 @@
   int ultimoAtaque = 100;// Esto es para las pruebas
   
   //Datos de enemigo
-  int posX=0 , posY=0;
+  //int posX=0 , posY=0;
   int posXEnemy1 = 0, posYEnemy1 = 0;
   int posXEnemy2 = 0, posYEnemy2 = 0;  //Hay que hacer una variable de estas para cada enemigo, si no todos los proyectiles siguen la misma trayectoria
-  
+  Proyectil proyectilDePrueba;//Esto crea el objeto de proyectil
   int prueba1 = 50, prueba2 = 250;
 //Datos de lectura
   String movDerecha = "Sin leer", movIzquierda = "Sin leer", movArriba = "Sin leer", movAbajo = "Sin leer";
@@ -56,7 +56,7 @@
   //Esta funcion prepara el juego para iniciar de 0 luego de morir
   void valoresOriginalesJuego(){
     JugadorX = 500; JugadorY = 500; //Resetear la posici[on del jugador
-    posX = 0; posY = 0; //Resetear la posici[on de los enemigos
+    //posX = 0; posY = 0; //Resetear la posici[on de los enemigos
     
     primeraAccionJuego = false;
   }
@@ -66,6 +66,7 @@ void setup() {
   background(#110025);
   //Carga de documentos
   imagenMenu = loadImage("PortadaDelJuego.jpg");
+  proyectilDePrueba = new Proyectil(0,0,20,40, color(#E0E0E0));
 }
   
 
@@ -163,6 +164,10 @@ void setup() {
         noStroke();
         rect(JugadorX,JugadorY,50,50);
         
+        proyectilDePrueba.dibujar();
+        proyectilDePrueba.movimiento(200,100,JugadorX,JugadorY);
+        proyectilDePrueba.collisionDetected();
+        
         
         
         //Movimiento del jugador
@@ -203,23 +208,14 @@ void setup() {
         //Se escriben asi:
         
         //pryectilStandar(PocisionInicial X, PocisionInicialY, Tamanio X, Tamanio Y, DestinoX, DestinoY, posXEnemy#, posYEnemy#);
-        proyectilStandar1(500,0,20,20,1000,1000, posXEnemy2, posYEnemy2);
-        proyectilStandar1(prueba1, prueba2, 20,40,JugadorX,JugadorY, posXEnemy1, posYEnemy1);
+        
+        
+       
+        
         
         //Detecci[on de impactos al jugador
         //todas las acciones relacionadas deben ir debajo de esta funcion
-        if(collision(posX,posY,posX + 20,posY + 40,JugadorX, JugadorY,JugadorX + 50, JugadorY + 50)){//SI hay impacto se ejecuta esto
-          numDialogo2 = 3;
-          impactoJugador = true;
-          println("primera afirmaci[on de danio");
-          if(coldownDanioRecibido == 0){
-            coldownDanioRecibido = coldown;
-          }
-          
-        }
-        else{
-          numDialogo2 = 2;
-        }
+        
         //ColdownDanioJugador
         if(coldownDanioRecibido > 0){
           coldownDanioRecibido--;
@@ -268,45 +264,92 @@ void setup() {
     entradaAceptar   = 0;
     entradaRechazar  = 0;
     numDialogo1      = 0;
+    
+    
   }
   
   
   //Configuraci[on de proyectiles
-  void proyectilStandar1(int posInicialX, int posInicialY, int tamanioX, int tamanioY, int destinoX,
-    int destinoY, int posX, int posY){
-      
-    
-   if(posX == 0){
-     posX = posInicialX;
-   }
-   if(posY == 0) {
-     posY = posInicialY;
-   }
+ //<>//
   
-    if(posX >0){
+  // Creaci[on de la clase de proeyctilles
+  class Proyectil {
+    int posX, posY;
+    int tamanioX;
+    int tamanioY;
+    color colorProyectil;
+    
+    Proyectil(int posX, int posY, int tamanioX, int tamanioY, color colorProyectil) {
+      this.posX = posX;
+      this.posY = posY;
+      this.tamanioX = tamanioX;
+      this.tamanioY = tamanioY;
+      this.colorProyectil = colorProyectil;
+    }
+    
+    void dibujar() {
+      fill(colorProyectil);
+      noStroke();
       
     }
-    //Esto se encarga de acercarse uniformemente a las coordenadas del destino
-    if(destinoX > posX){
-      posX = posX + velocidadProyectil1;
-    }
-    if(destinoX < posX){
-      posX = posX - velocidadProyectil1;
-    } //<>//
     
-    if(destinoY > posY){
-      posY = posY + velocidadProyectil1 ;
-    }
-    if(destinoY < posY){
-      posY = posY - velocidadProyectil1;
-    }
-    
-    fill(#E0E0E0);
-    rect(posX,posY,tamanioX,tamanioY);
-    
-    println("enemigo X: " + posX);
-    println("enemigo Y: " + posY);
+    void movimiento(int posInicialX, int posInicialY, int destinoX,
+    int destinoY){
+          
+        
+       if(posX == 0){
+         
+         posX = posInicialX;
+       }
+       if(posY == 0) {
+         posY = posInicialY;
+       }
+      
+        if(posX >0){
+          
+        }
+        //Esto se encarga de acercarse uniformemente a las coordenadas del destino
+        if(destinoX > posX){
+          posX = posX + velocidadProyectil1;
+        }
+        if(destinoX < posX){
+          posX = posX - velocidadProyectil1;
+        }
+        
+        if(destinoY > posY){
+          posY = posY + velocidadProyectil1 ;
+        }
+        if(destinoY < posY){
+          posY = posY - velocidadProyectil1;
+        }
+        
+        fill(#E0E0E0);
+        rect(posX,posY,tamanioX,tamanioY);
+        
+        println("enemigo X: " + posX);
+        println("enemigo Y: " + posY);
+      }
+      
+      void collisionDetected(){
+        println("iniciando deteccion de colision");
+        if(collision(posX,posY,posX + tamanioX,posY + tamanioY,JugadorX, JugadorY,JugadorX + 50, JugadorY + 50)){//SI hay impacto se ejecuta esto
+          
+          numDialogo2 = 3;
+          impactoJugador = true;
+          println("primera afirmaci[on de danio");
+          if(coldownDanioRecibido == 0){
+            coldownDanioRecibido = coldown;
+          }
+          
+        }
+        else{
+          numDialogo2 = 2;
+        }
+      }
   }
+    
+    
+    
   
   //Esta funcio recibe las coordenadas de algo y comprueba si est[an colisionando
   
