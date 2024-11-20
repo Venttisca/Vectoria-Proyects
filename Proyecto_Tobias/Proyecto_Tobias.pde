@@ -15,7 +15,7 @@
 //Configuraci[on de ejecuci[on
   int intervalo = 16;//milisegundos
   int tiempoAnterior = 0;
-  
+  int selectorEscena = 0; // 0 menu, 1 Juego, 2 muerte
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
   boolean primeraAccionMenu  = true;
@@ -44,6 +44,7 @@
   int ultimoAtaque = 100;// Esto es para las pruebas
   
   //Datos de enemigo
+  ArrayList<Proyectil> proyectiles;
   //int posX=0 , posY=0;
   int posXEnemy1 = 0, posYEnemy1 = 0;
   int posXEnemy2 = 0, posYEnemy2 = 0;  //Hay que hacer una variable de estas para cada enemigo, si no todos los proyectiles siguen la misma trayectoria
@@ -67,6 +68,7 @@ void setup() {
   //Carga de documentos
   imagenMenu = loadImage("PortadaDelJuego.jpg");
   proyectilDePrueba = new Proyectil(0,0,20,40, color(#E0E0E0));
+  proyectiles = new ArrayList<Proyectil>();
 }
   
 
@@ -134,108 +136,26 @@ void setup() {
         valoresOriginalesEntrada();
         
       }
-      //texto(Dialogos1[0],50,200);
       
-       texto(Dialogos1[numDialogo1],40,100,20);// Dibujado de texto
-       texto(Dialogos1[numDialogo2],150,150,30);//confirmaci[on de impato
-       
-       //Prints para la consola
-        println("entradaIzquierda " + entradaIzquierda + " Estado: " + movIzquierda);
-        println("entradaDerecha   " + entradaDerecha +  " Estado: " + movDerecha);
-        println("entradaArriba    " + entradaArriba +    " Estado: " + movArriba);
-        println("entradaAbajo     " + entradaAbajo +     " Estado: " + movAbajo);
         
-        println("numDialogo1 " + numDialogo1);
-        println("JugadorX " + JugadorX);
-        println("JugadorY " + JugadorY);
-        
-        if (salud > 0) {
-        //Caja de Batalla
-        fill(#110025);
-        stroke(#E0E0E0);
-        strokeWeight(10);
-        int anchoCajaB = 500;
-        int altoCajaB  = 400;
-        rect(250,400,anchoCajaB,altoCajaB);
-        
-        
-        //Jugador
-        fill(#E0E0E0);
-        noStroke();
-        rect(JugadorX,JugadorY,50,50);
-        
-        proyectilDePrueba.dibujar();
-        proyectilDePrueba.movimiento(200,100,JugadorX,JugadorY);
-        proyectilDePrueba.collisionDetected();
-        
-        
-        
-        //Movimiento del jugador
-        if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
-          JugadorX -= velocidadJugador;
-          movIzquierda = "Activo";
-          
-        }
-        else{
-          movIzquierda = "Suspendido";
-        }
-        if(entradaDerecha == 1 && JugadorX < 700){//Movimiento a la derecha
-          JugadorX += velocidadJugador;
-          movDerecha = "Activo";
-        }
-        else{
-          movDerecha = "Suspendido";
-        }
-        if(entradaArriba == 1 && JugadorY > 400){//Movimiento hacia arriba
-          JugadorY -= velocidadJugador;
-          movArriba = "Activo";
-        }
-        else{
-          movArriba = "Suspendido";
-        }
-        if(entradaAbajo == 1 && JugadorY < 750){//Moviemiento hacia abajo
-          JugadorY += velocidadJugador;
-          movAbajo = "Activo";
-        }
-        else{
-          movAbajo = "Suspendido";
-        }
-        
-        
-        
-        //proyectiles   
-        
-        //Se escriben asi:
-        
-        //pryectilStandar(PocisionInicial X, PocisionInicialY, Tamanio X, Tamanio Y, DestinoX, DestinoY, posXEnemy#, posYEnemy#);
-        
-        
-       
-        
-        
-        //Detecci[on de impactos al jugador
-        //todas las acciones relacionadas deben ir debajo de esta funcion
-        
-        //ColdownDanioJugador
-        if(coldownDanioRecibido > 0){
-          coldownDanioRecibido--;
-        }
-        println("coldownDanioRecibido: " + coldownDanioRecibido);
-        barraDeVida();
-        
-   }//tEMPORAL
         
         
         //Selector de escenas
           //Escena de Game Over
         if(salud == 0) {
           println("Ejecutando escenaMuerte");
+          selectorEscena = 2;
           escenaMuerte();
         }
         
-        if(primeraAccionMenu){
+        else if(primeraAccionMenu){
           println("Ejecutando escenaMenu");
+          selectorEscena = 0;
           escenaMenu();
+        }
+        else{
+          selectorEscena = 1;
+          escenaJuego();
         }
         
         
@@ -435,4 +355,92 @@ void setup() {
     valoresOriginalesJuego();
     }
   }
+  void escenaJuego() {
+        //Caja de Batalla
+        fill(#110025);
+        stroke(#E0E0E0);
+        strokeWeight(10);
+        int anchoCajaB = 500;
+        int altoCajaB  = 400;
+        rect(250,400,anchoCajaB,altoCajaB);
+        
+        
+        //Jugador
+        fill(#E0E0E0);
+        noStroke();
+        rect(JugadorX,JugadorY,50,50);
+        
+        proyectilDePrueba.dibujar();
+        proyectilDePrueba.movimiento(200,100,JugadorX,JugadorY);
+        proyectilDePrueba.collisionDetected();
+        
+        
+        
+        //Movimiento del jugador
+        if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
+          JugadorX -= velocidadJugador;
+          movIzquierda = "Activo";
+          
+        }
+        else{
+          movIzquierda = "Suspendido";
+        }
+        if(entradaDerecha == 1 && JugadorX < 700){//Movimiento a la derecha
+          JugadorX += velocidadJugador;
+          movDerecha = "Activo";
+        }
+        else{
+          movDerecha = "Suspendido";
+        }
+        if(entradaArriba == 1 && JugadorY > 400){//Movimiento hacia arriba
+          JugadorY -= velocidadJugador;
+          movArriba = "Activo";
+        }
+        else{
+          movArriba = "Suspendido";
+        }
+        if(entradaAbajo == 1 && JugadorY < 750){//Moviemiento hacia abajo
+          JugadorY += velocidadJugador;
+          movAbajo = "Activo";
+        }
+        else{
+          movAbajo = "Suspendido";
+        }
+        
+        
+        
+        //proyectiles   
+        
+        
+        
+        
+       
+        
+        
+        //Detecci[on de impactos al jugador
+        //todas las acciones relacionadas deben ir debajo de esta funcion
+        
+        //ColdownDanioJugador
+        if(coldownDanioRecibido > 0){
+          coldownDanioRecibido--;
+        }
+        println("coldownDanioRecibido: " + coldownDanioRecibido);
+        barraDeVida();
+        
+        //texto(Dialogos1[0],50,200);
+      
+       texto(Dialogos1[numDialogo1],40,100,20);// Dibujado de texto
+       texto(Dialogos1[numDialogo2],150,150,30);//confirmaci[on de impato
+       
+       //Prints para la consola
+        println("entradaIzquierda " + entradaIzquierda + " Estado: " + movIzquierda);
+        println("entradaDerecha   " + entradaDerecha +  " Estado: " + movDerecha);
+        println("entradaArriba    " + entradaArriba +    " Estado: " + movArriba);
+        println("entradaAbajo     " + entradaAbajo +     " Estado: " + movAbajo);
+        
+        println("numDialogo1 " + numDialogo1);
+        println("JugadorX " + JugadorX);
+        println("JugadorY " + JugadorY);
+        
+   }//tEMPORAL
     
