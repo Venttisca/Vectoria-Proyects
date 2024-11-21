@@ -260,6 +260,7 @@ void setup() {
     int tamanioX;
     int tamanioY;
     color colorProyectil;
+    public int radio;
     
     Proyectil(int posX, int posY, int tamanioX, int tamanioY, color colorProyectil) {
       this.posX = posX;
@@ -269,10 +270,36 @@ void setup() {
       this.colorProyectil = colorProyectil;
     }
     
-    void dibujar() {
+    void movimientoRadialDentro(int posX, int posY, int radius, int velocidad) {
       fill(colorProyectil);
-      noStroke();
       
+      if (radio == 0){
+        radio = radius;
+      }
+      if (radio > 1){
+        radio -= velocidad;
+      }
+      
+      noStroke();
+      rect(posX,posY,tamanioX,tamanioY);
+      
+    }
+    void movimientoRadialFuera(int posX, int posY, int radius, int velocidad) {
+      fill(colorProyectil);
+      
+      if (radio == 0){
+        radio = radius;
+      }
+      if (radio < 1500){
+        radio += velocidad;
+      }
+      
+      noStroke();
+      rect(posX,posY,tamanioX,tamanioY);
+      
+    }
+    int getRadio() {
+      return radio;
     }
     
     void movimiento(int posInicialX, int posInicialY, int destinoX,
@@ -459,7 +486,7 @@ void setup() {
         crearProyectiles(10,20,20);// Diagonales centro 20-29
         }
         //Reproducci[on de audio
-        if((tiempoJuego > 9)&&(!temaBatalla.isPlaying())) {
+        if(tiempoJuego == 9) {
           temaBatalla.rewind();
           temaBatalla.play();
         }
@@ -600,19 +627,22 @@ int radio, int velocidad) {
   int numProyectiles = ultimo - primero + 1;
   if(tiempoJuego > inicio && tiempoJuego < fin){
     for (int i = primero; i <= ultimo; i++) {
+      Proyectil p = proyectiles.get(i);
       // Convertimos la iteración en un ángulo
       PVector center = new PVector(centroX, centroY);
       float angle = TWO_PI / numProyectiles * (i - primero);      
       // Calculamos la posición del proyectil
-      float x = center.x + cos(angle) * radio;
-      float y = center.y + sin(angle) * radio;
+      float radius = (float)p.getRadio();
+      float x = center.x + cos(angle) * radius;
+      float y = center.y + sin(angle) * radius;
       int posX = (int) Math.floor(x);
       int posY = (int) Math.floor(y);
       
       // Dibujamos el proyectil
-      Proyectil p = proyectiles.get(i);
-      p.movimiento(posX,posY, centroX, centroY,velocidad);
+      
+      p.movimientoRadialDentro(posX,posY, radio, velocidad);
       p.collisionDetected();
     }
+    
   }
 }
