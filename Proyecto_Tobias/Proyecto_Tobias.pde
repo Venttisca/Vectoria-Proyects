@@ -275,7 +275,7 @@ void setup() {
     }
     
     void movimiento(int posInicialX, int posInicialY, int destinoX,
-    int destinoY){
+    int destinoY, int velocidad ){
           
         
        if(posX == 0){
@@ -291,17 +291,17 @@ void setup() {
         }
         //Esto se encarga de acercarse uniformemente a las coordenadas del destino
         if(destinoX > posX){
-          posX = posX + velocidadProyectil1;
+          posX = posX + velocidad;
         }
         if(destinoX < posX){
-          posX = posX - velocidadProyectil1;
+          posX = posX - velocidad;
         }
         
         if(destinoY > posY){
-          posY = posY + velocidadProyectil1 ;
+          posY = posY + velocidad;
         }
         if(destinoY < posY){
-          posY = posY - velocidadProyectil1;
+          posY = posY - velocidad;
         }
         
         fill(#E0E0E0);
@@ -380,6 +380,9 @@ void setup() {
   }
   
   void escenaMuerte() {
+    temaBatalla.pause();
+    temaBatalla.rewind();
+    
     background(#110025);
     fill(#110025);
     stroke(#E0E0E0);
@@ -441,7 +444,7 @@ void setup() {
         noStroke();
         rect(JugadorX,JugadorY,50,50);
         
-        //Proyectil de Prueba, comentar al finalizar pruebas
+        //Proyectil de Prueba, comdddddentar al finalizar pruebas
           /*
         proyectilDePrueba.dibujar();
         proyectilDePrueba.movimiento(200,100,JugadorX,JugadorY);
@@ -450,7 +453,8 @@ void setup() {
         
         //Creacion de Proyectiles
         if(tiempoJuego == 10){
-        crearProyectiles(9,20,40);
+        crearProyectiles(10,20,40); // Horizontales
+        crearProyectiles(10,20,40); // Verticales
         }
         //Reproducci[on de audio
         if((tiempoJuego > 9)&&(!temaBatalla.isPlaying())) {
@@ -459,16 +463,19 @@ void setup() {
         }
         
         
-        //Movimiento de los proyectiles
-        if(tiempoJuego < 1000){
-        for(int i = 1 ;i < proyectiles.size(); i++) {
-          Proyectil p = proyectiles.get(i);
-          
-          int incrementoX = i * 100;
-          p.movimiento(incrementoX,300,incrementoX,1100);
-          p.collisionDetected();
-        }
-        }
+   //Movimiento de los proyectiles
+        
+        moverMultiProyectilHorizontal(10,370,0,9,1,100,0,300,1100,2);
+        moverMultiProyectilHorizontal(390,800,5,9,1,100,0,110,0,2);
+        moverMultiProyectilHorizontal(650,900,0,4,1,100,0,1100, -100,8);
+        moverMultiProyectilVertical(900,1100,10,19,1,100,10,0,1000,9);
+        moverMultiProyectilHorizontal(1050,1300,0,9,1,100,0,-50,1050,10);
+        moverMultiProyectilVertical(1200,1300,10,19,1,100,10,1000,0,10);
+        moverMultiProyectilVertical(1300, 1500, 10, 18, 2, 100,10, 0, 1000, 10);
+      /*moverMultiProyectilHorizontal(inicio,fin,primero,ultimo,incremento,espaciado,restI,posY,destinoY,velocidad)*/
+  
+        
+        
         
         
         
@@ -551,4 +558,30 @@ void setup() {
    void eliminarTodosProyectiles(){
      proyectiles.clear();
    }
+   
+   void moverMultiProyectilHorizontal(int inicio, int fin, int primero, int ultimo, int incremento, int espaciado,
+   
+   int restaI, int posY, int destinoY, int velocidad) {
+        if(tiempoJuego > inicio && tiempoJuego < fin) {
+          for(int i = primero; i<= ultimo; i+= incremento){
+            Proyectil p = proyectiles.get(i);
+            
+            int incrementoE = (i - restaI) * espaciado;
+            p.movimiento(incrementoE,posY, incrementoE, destinoY,velocidad);
+            p.collisionDetected();
+          }
+        }
+     }
     
+       void moverMultiProyectilVertical(int inicio, int fin, int primero, int ultimo, int incremento, int espaciado, 
+   int restaI,int posX, int destinoX, int velocidad) {
+        if(tiempoJuego > inicio && tiempoJuego < fin) {
+          for(int i = primero; i<= ultimo; i+= incremento){
+            Proyectil p = proyectiles.get(i);
+            
+            int incrementoE = (i - restaI) * espaciado;
+            p.movimiento(posX, incrementoE, destinoX,incrementoE,velocidad);
+            p.collisionDetected();
+          }
+        }
+     }
