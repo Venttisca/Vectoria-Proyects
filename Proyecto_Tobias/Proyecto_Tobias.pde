@@ -1,3 +1,16 @@
+import ddf.minim.*; //<>//
+import ddf.minim.analysis.*;
+import ddf.minim.effects.*;
+import ddf.minim.signals.*;
+import ddf.minim.spi.*;
+import ddf.minim.ugens.*;
+Minim minim;
+AudioPlayer temaBatalla;
+
+  import cc.arduino.*;
+  import org.firmata.*;
+  import processing.serial.*;
+  
   //Aqui se configura la carga de archivos
     //Carga de imagenes
     PImage imagenMenu;
@@ -19,6 +32,7 @@
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
   boolean primeraAccionMenu  = true;
+  int tiempoJuego = 0;// esto cuenta los fotogramas que han pasado
   
 //Aqui van los dialogos que se van a mostrar
   String[] Dialogos1 = {
@@ -62,6 +76,7 @@
     primeraAccionJuego = false;
   }
   
+  //Arduino arduino;
 void setup() {
   size(1000,1000);
   background(#110025);
@@ -69,6 +84,26 @@ void setup() {
   imagenMenu = loadImage("PortadaDelJuego.jpg");
   proyectilDePrueba = new Proyectil(0,0,20,40, color(#E0E0E0));
   proyectiles = new ArrayList<Proyectil>();
+  
+  //Minim
+    //Carga de audio
+    minim = new Minim(this);
+    temaBatalla = minim.loadFile("TrueLove.mp3");
+    
+    
+  
+  //Arduino
+  /*
+  arduino = new Arduino(this,Arduino.list()[1],57600);
+ 
+  
+  arduino.pinMode(5,Arduino.INPUT_PULLUP);
+  arduino.pinMode(6,Arduino.INPUT_PULLUP);
+  arduino.pinMode(7,Arduino.INPUT_PULLUP);
+  arduino.pinMode(9,Arduino.INPUT_PULLUP);
+  arduino.pinMode(10,Arduino.INPUT_PULLUP);
+  arduino.pinMode(11,Arduino.INPUT_PULLUP);
+  */
 }
   
 
@@ -84,6 +119,8 @@ void setup() {
   void draw() {
    // int tiempoActual = millis();
    // if(tiempoActual - tiempoAnterior >= intervalo) {
+     
+     //Lectura de arduino
       
         //valoresOriginalesEntrada();
         if(primeraAccionJuego == true){
@@ -132,6 +169,30 @@ void setup() {
        
         
       }
+      
+      //Lectura de botones Arduino
+      /*
+      if(arduino.digitalRead(1) == 0){
+        entradaArriba = 1;
+      }
+      if(arduino.digitalRead(2) == 0){
+        entradaAbajo = 1;
+      }
+      if(arduino.digitalRead(3) == 0){
+        entradaIzquierda = 1;
+      }
+      if(arduino.digitalRead(4) == 0){
+        entradaDerecha = 1;
+      }
+      if(arduino.digitalRead(5) == 0){
+        entradaAceptar = 1;
+      }
+      if(arduino.digitalRead(6) == 0){
+        entradaRechazar = 1;
+      }
+      */
+      
+      
       else{
         valoresOriginalesEntrada();
         
@@ -148,14 +209,14 @@ void setup() {
           escenaMuerte();
         }
         
-        else if(primeraAccionMenu){
+        else if(selectorEscena == 0){
           println("Ejecutando escenaMenu");
           selectorEscena = 0;
           escenaMenu();
         }
-        else{
-          selectorEscena = 1;
+        else if (selectorEscena == 1 ){
           escenaJuego();
+          
         }
         
         
@@ -190,7 +251,7 @@ void setup() {
   
   
   //Configuraci[on de proyectiles
- //<>//
+
   
   // Creaci[on de la clase de proeyctilles
   class Proyectil {
@@ -332,12 +393,17 @@ void setup() {
     texto("Pulsa x para volver al menu",300, 820,30);
     if(entradaAceptar == 1) {
       salud = 1000;
-      primeraAccionJuego = true;
+      tiempoJuego = 0;
+      selectorEscena = 1;//Escena de Juego
+      eliminarTodosProyectiles();
     }
     if(entradaRechazar == 1) {
       salud = 1000;
-      primeraAccionJuego = true;
-      primeraAccionMenu = true;
+      tiempoJuego = 0;
+      selectorEscena = 0;//Escena Menu
+      eliminarTodosProyectiles();
+      
+      
     }
   }
   
@@ -351,12 +417,17 @@ void setup() {
     
     texto("Pulsa z para inciar", 400,700,40);
     if(entradaAceptar == 1) {
-    primeraAccionMenu = false;
+    selectorEscena = 1;
+    eliminarTodosProyectiles();
     valoresOriginalesJuego();
     }
   }
   void escenaJuego() {
         //Caja de Batalla
+        tiempoJuego++;
+        
+        //control de musica
+        
         fill(#110025);
         stroke(#E0E0E0);
         strokeWeight(10);
@@ -370,9 +441,35 @@ void setup() {
         noStroke();
         rect(JugadorX,JugadorY,50,50);
         
+        //Proyectil de Prueba, comentar al finalizar pruebas
+          /*
         proyectilDePrueba.dibujar();
         proyectilDePrueba.movimiento(200,100,JugadorX,JugadorY);
         proyectilDePrueba.collisionDetected();
+          */
+        
+        //Creacion de Proyectiles
+        if(tiempoJuego == 10){
+        crearProyectiles(9,20,40);
+        }
+        //Reproducci[on de audio
+        if((tiempoJuego > 9)&&(!temaBatalla.isPlaying())) {
+          temaBatalla.rewind();
+          temaBatalla.play();
+        }
+        
+        
+        //Movimiento de los proyectiles
+        if(tiempoJuego < 1000){
+        for(int i = 1 ;i < proyectiles.size(); i++) {
+          Proyectil p = proyectiles.get(i);
+          
+          int incrementoX = i * 100;
+          p.movimiento(incrementoX,300,incrementoX,1100);
+          p.collisionDetected();
+        }
+        }
+        
         
         
         
@@ -441,6 +538,17 @@ void setup() {
         println("numDialogo1 " + numDialogo1);
         println("JugadorX " + JugadorX);
         println("JugadorY " + JugadorY);
+        println("Tiempo de Juego: " + tiempoJuego);
         
-   }//tEMPORAL
+   }
+   
+   void crearProyectiles(int cantidad, int tamanioX, int tamanioY){
+     for (int i = cantidad; i>0; i--){
+          proyectiles.add(new Proyectil(0,0,tamanioX,tamanioY,color(#E0E0E0)));
+        }
+   }
+   
+   void eliminarTodosProyectiles(){
+     proyectiles.clear();
+   }
     
