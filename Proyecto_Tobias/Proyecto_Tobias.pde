@@ -29,7 +29,8 @@ AudioPlayer temaBatalla;
   int intervalo = 16;//milisegundos
   int tiempoAnterior = 0;
   int selectorEscena = 0; // 0 menu, 1 Juego, 2 muerte
-  int ajusteTime = 80;// Esto es para corregir timing en general
+  int ajusteTime = 0;// Esto es para corregir timing en general
+  //Ajuste de timing para Thinkpad: 80
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
   boolean primeraAccionMenu  = true;
@@ -55,7 +56,7 @@ AudioPlayer temaBatalla;
   int salud = 1000;
   boolean impactoJugador;
   int coldownDanioRecibido = 1; // esta variable se encarga de almacenar el coldown
-  int coldown = 3; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
+  int coldown = 5; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
   int ultimoAtaque = 100;// Esto es para las pruebas
   
   //Datos de enemigo
@@ -270,33 +271,32 @@ void setup() {
       this.colorProyectil = colorProyectil;
     }
     
-    void movimientoRadialDentro(int positionX, int positionY, int radius, int velocidad) {
+    void movimientoRadialDentro(int posX, int posY, int radius, int velocidad) {
       fill(colorProyectil);
       
       if (radio == 0){
         radio = radius;
       }
-      if (radio > 1){
+      if (radio > 2){
         radio -= velocidad;
       }
       
       noStroke();
-      posX = positionX;
-      posY = positionY;
+      this.posX = posX;
+      this.posY = posY;
       rect(posX,posY,tamanioX,tamanioY);
       
     }
     void movimientoRadialFuera(int posX, int posY, int radius, int velocidad) {
       fill(colorProyectil);
       
-      if (radio == 0){
-        radio = radius;
-      }
-      if (radio < 1500){
+      if (radio < 1500 && radio <= radius){
         radio += velocidad;
       }
       
       noStroke();
+      this.posX = posX;
+      this.posY = posY;
       rect(posX,posY,tamanioX,tamanioY);
       
     }
@@ -469,6 +469,7 @@ void setup() {
         rect(250,400,anchoCajaB,altoCajaB);
         
         
+        
         //Jugador
         fill(#E0E0E0);
         noStroke();
@@ -485,7 +486,7 @@ void setup() {
         if(tiempoJuego == 10){
         crearProyectiles(10,20,40); // Horizontales 0-9
         crearProyectiles(10,20,40); // Verticales 10-19
-        crearProyectiles(10,20,20);// Diagonales centro 20-29
+        crearProyectiles(20,20,20);// Radiales centro 20-39
         }
         //Reproducci[on de audio
         if(tiempoJuego == 9) {
@@ -495,6 +496,8 @@ void setup() {
         
         
    //Movimiento de los proyectiles
+   
+        //            PRIMERA MITAD
         
         moverMultiProyectilHorizontal(10,370,0,9,1,100,0,300,1100,2);
         moverMultiProyectilHorizontal(ajusteTime + 360,ajusteTime + 800,5,9,1,100,0,110,0,2);
@@ -511,13 +514,29 @@ void setup() {
       /*moverMultiProyectilHorizontal(inicio,fin,primero,ultimo,incremento,espaciado,restI,posY,destinoY,velocidad)*/
         moverMultiProyectilRadialDentro(ajusteTime + 1500,ajusteTime + 1600,20,29,500,500,400,2);
         moverMultiProyectilRadialDentro(ajusteTime + 1600,ajusteTime + 1650,20,29,500,500,400,4);
+        moverMultiProyectilRadialFuera(ajusteTime + 1650, ajusteTime + 1800,20,29,500,500,300,4);
         
+        //moverMultiProyectilHorizontal(ajusteTime + 1650,ajusteTime + 1800,11,19,1,100,10,0,1000,0);
+        
+        
+        moverMultiProyectilRadialDentro(ajusteTime + 1800 ,ajusteTime + 2000,25,29,500,500,300,2);
+        moverMultiProyectilRadialFuera(ajusteTime + 1800, ajusteTime + 2000,20,24,500,500,500,4);
+        moverMultiProyectilRadialDentro(ajusteTime + 2000, ajusteTime + 2100,20,29,500,500,300,10);
+        moverMultiProyectilRadialFuera(ajusteTime + 2000, ajusteTime + 2100,30,39,500,500,300,6);
         //moverMultiProyectilRadialDentro(inicio,fin,primero,ultimo,centroX,centroY,radio,velocidad)
+        moverMultiProyectilHorizontal(ajusteTime + 2000,ajusteTime + 2100,0,9,1,100,0,1050, 2,0);
+        moverMultiProyectilHorizontal(ajusteTime + 2100,ajusteTime + 2300,0,9,1,100,0,1050, 2,5);
+        moverMultiProyectilVertical(ajusteTime + 2200,ajusteTime + 2250,11,19,2,100,10,0,1000,8);
+        moverMultiProyectilVertical(ajusteTime + 2250,ajusteTime + 2400,11,19,2,100,10,1000,0,8);
+        moverMultiProyectilVertical(ajusteTime + 2200,ajusteTime + 2250,12,18,2,100,10,1000,0,1000);
+        moverMultiProyectilVertical(ajusteTime + 2250,ajusteTime + 2400,12,18,2,100,10,0,1000,8);
+        
+        //AQUI VA EL SILENCIO: DIALGO DEL ENEMIGO
         
         
-        
-        
-        
+        //                        SEGUNDA MITAD: ATAQUE VELOZ
+        moverMultiProyectilHorizontal(3150 + ajusteTime,3500 + ajusteTime,0,9,1,100,0,300,1100,4);
+        moverMultiProyectilRadialFuera(ajusteTime + 3550, ajusteTime + 4000,20,28,480,580,200,0);
         
         //Movimiento del jugador
         if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
@@ -630,7 +649,6 @@ int radio, int velocidad) {
   if(tiempoJuego > inicio && tiempoJuego < fin){
     for (int i = primero; i <= ultimo; i++) {
       Proyectil p = proyectiles.get(i);
-      p.collisionDetected();
       // Convertimos la iteración en un ángulo
       PVector center = new PVector(centroX, centroY);
       float angle = TWO_PI / numProyectiles * (i - primero);      
@@ -644,6 +662,30 @@ int radio, int velocidad) {
       // Dibujamos el proyectil
       
       p.movimientoRadialDentro(posX,posY, radio, velocidad);
+      p.collisionDetected();
+    }
+    
+  }
+}
+   void moverMultiProyectilRadialFuera(int inicio, int fin, int primero, int ultimo, int centroX, int centroY,
+int radio, int velocidad) {
+  int numProyectiles = ultimo - primero + 1;
+  if(tiempoJuego > inicio && tiempoJuego < fin){
+    for (int i = primero; i <= ultimo; i++) {
+      Proyectil p = proyectiles.get(i);
+      // Convertimos la iteración en un ángulo
+      PVector center = new PVector(centroX, centroY);
+      float angle = TWO_PI / numProyectiles * (i - primero);      
+      // Calculamos la posición del proyectil
+      float radius = (float)p.getRadio();
+      float x = center.x + cos(angle) * radius;
+      float y = center.y + sin(angle) * radius;
+      int posX = (int) Math.floor(x);
+      int posY = (int) Math.floor(y);
+      
+      // Dibujamos el proyectil
+      
+      p.movimientoRadialFuera(posX,posY, radio, velocidad);
       p.collisionDetected();
     }
     
