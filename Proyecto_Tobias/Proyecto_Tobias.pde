@@ -532,11 +532,13 @@ void setup() {
         moverMultiProyectilVertical(ajusteTime + 2250,ajusteTime + 2400,12,18,2,100,10,0,1000,8);
         
         //AQUI VA EL SILENCIO: DIALGO DEL ENEMIGO
-        
+        if(tiempoJuego > 2500 && tiempoJuego <3100){
+          texto("Dialogo del enemigo",250,200,60);
+        }
         
         //                        SEGUNDA MITAD: ATAQUE VELOZ
         moverMultiProyectilHorizontal(3150 + ajusteTime,3500 + ajusteTime,0,9,1,100,0,300,1100,4);
-        moverMultiProyectilRadialFuera(ajusteTime + 3550, ajusteTime + 4000,20,28,480,580,200,0);
+        moverMultiProyectilRadialFuera(ajusteTime + 3550, ajusteTime + 4000,20,28,480,580,150,8);
         
         //Movimiento del jugador
         if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
