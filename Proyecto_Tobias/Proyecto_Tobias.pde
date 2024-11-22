@@ -55,7 +55,7 @@ AudioPlayer temaBatalla;
   int salud = 1000;
   boolean impactoJugador;
   int coldownDanioRecibido = 1; // esta variable se encarga de almacenar el coldown
-  int coldown = 5; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
+  int coldown = 3; //el tiempo q se le asigna al coldown de danio cada vez q se reincia
   int ultimoAtaque = 100;// Esto es para las pruebas
   
   //Datos de enemigo
@@ -270,7 +270,7 @@ void setup() {
       this.colorProyectil = colorProyectil;
     }
     
-    void movimientoRadialDentro(int posX, int posY, int radius, int velocidad) {
+    void movimientoRadialDentro(int positionX, int positionY, int radius, int velocidad) {
       fill(colorProyectil);
       
       if (radio == 0){
@@ -281,6 +281,8 @@ void setup() {
       }
       
       noStroke();
+      posX = positionX;
+      posY = positionY;
       rect(posX,posY,tamanioX,tamanioY);
       
     }
@@ -628,6 +630,7 @@ int radio, int velocidad) {
   if(tiempoJuego > inicio && tiempoJuego < fin){
     for (int i = primero; i <= ultimo; i++) {
       Proyectil p = proyectiles.get(i);
+      p.collisionDetected();
       // Convertimos la iteración en un ángulo
       PVector center = new PVector(centroX, centroY);
       float angle = TWO_PI / numProyectiles * (i - primero);      
