@@ -14,7 +14,13 @@ AudioPlayer temaBatalla;
   //Aqui se configura la carga de archivos
     //Carga de imagenes
     PImage imagenMenu;
-    
+    PImage imagenEnemigo1;
+    PImage imagenEnemigo2;
+    PImage imagenEtternidad;
+    PImage imagenJugador;
+    PImage imagenGameOver;
+    PImage imagenDerrota;
+    PImage imagenPresiona;
     
     
   //Aqui se configuran los inputs 
@@ -30,6 +36,8 @@ AudioPlayer temaBatalla;
   int tiempoAnterior = 0;
   int selectorEscena = 0; // 0 menu, 1 Juego, 2 muerte
   int ajusteTime = 0;// Esto es para corregir timing en general
+  PImage enemigoImagen = imagenEnemigo1;
+  int contadorEnemigo;
   //Ajuste de timing para Thinkpad: 80
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
@@ -78,15 +86,22 @@ AudioPlayer temaBatalla;
     primeraAccionJuego = false;
   }
   
-  //Arduino arduino;
+  Arduino arduino;
 void setup() {
   size(1000,1000);
   background(#110025);
   //Carga de documentos
-  imagenMenu = loadImage("PortadaDelJuego.jpg");
+  imagenMenu = loadImage("PortadaDelJuego.png");
+  imagenEnemigo1 = loadImage("enemigo1.png");
+  imagenEnemigo2 = loadImage("enemigo2.png");
+  imagenEtternidad = loadImage("etternidad.png");
+  imagenJugador = loadImage("jugador.png");
+  imagenGameOver = loadImage("gameOver.png");
+  imagenDerrota = loadImage("derrota.png");
+  imagenPresiona = loadImage("presiona.png");
   proyectilDePrueba = new Proyectil(0,0,20,40, color(#E0E0E0));
   proyectiles = new ArrayList<Proyectil>();
-  
+  texto("cargando...",300,500,70);
   //Minim
     //Carga de audio
     minim = new Minim(this);
@@ -95,17 +110,17 @@ void setup() {
     
   
   //Arduino
-  /*
+  
   arduino = new Arduino(this,Arduino.list()[1],57600);
  
   
-  arduino.pinMode(5,Arduino.INPUT_PULLUP);
   arduino.pinMode(6,Arduino.INPUT_PULLUP);
   arduino.pinMode(7,Arduino.INPUT_PULLUP);
+  arduino.pinMode(8,Arduino.INPUT_PULLUP);
   arduino.pinMode(9,Arduino.INPUT_PULLUP);
   arduino.pinMode(10,Arduino.INPUT_PULLUP);
   arduino.pinMode(11,Arduino.INPUT_PULLUP);
-  */
+  
 }
   
 
@@ -131,7 +146,7 @@ void setup() {
         
         background(#110025);
       
-        
+       
       if (keyPressed) { // esto se acaiva cuando culquier tecla es presionada
       
         if (key == 'a' || key == 'A'){
@@ -172,33 +187,31 @@ void setup() {
         
       }
       
+      
       //Lectura de botones Arduino
-      /*
-      if(arduino.digitalRead(1) == 0){
+      
+      if(arduino.digitalRead(7) == 0){
         entradaArriba = 1;
       }
-      if(arduino.digitalRead(2) == 0){
+      if(arduino.digitalRead(9) == 0){
         entradaAbajo = 1;
       }
-      if(arduino.digitalRead(3) == 0){
+      if(arduino.digitalRead(6) == 0){
         entradaIzquierda = 1;
       }
-      if(arduino.digitalRead(4) == 0){
+      if(arduino.digitalRead(8) == 0){
         entradaDerecha = 1;
       }
-      if(arduino.digitalRead(5) == 0){
+      if(arduino.digitalRead(10) == 0){
         entradaAceptar = 1;
       }
-      if(arduino.digitalRead(6) == 0){
+      if(arduino.digitalRead(11) == 0){
         entradaRechazar = 1;
       }
-      */
+      movimientoJugador();
       
       
-      else{
-        valoresOriginalesEntrada();
-        
-      }
+      
       
         
         
@@ -224,7 +237,8 @@ void setup() {
         
         //Maquina de estados
         impactoJugador = false;
-        delay(16);
+        valoresOriginalesEntrada();
+        delay(0);
   //        tiempoAnterior = tiempoActual;
   //}//cierre de la actualizacion controlada
     
@@ -284,7 +298,8 @@ void setup() {
       noStroke();
       this.posX = posX;
       this.posY = posY;
-      rect(posX,posY,tamanioX,tamanioY);
+      //rect(posX,posY,tamanioX,tamanioY);
+      image(enemigoImagen,posX,posY,tamanioX,tamanioY);
       
     }
     void movimientoRadialFuera(int posX, int posY, int radius, int velocidad) {
@@ -297,8 +312,8 @@ void setup() {
       noStroke();
       this.posX = posX;
       this.posY = posY;
-      rect(posX,posY,tamanioX,tamanioY);
-      
+      //rect(posX,posY,tamanioX,tamanioY);
+      image(enemigoImagen,posX,posY,tamanioX,tamanioY);
     }
     int getRadio() {
       return radio;
@@ -335,7 +350,11 @@ void setup() {
         }
         
         fill(#E0E0E0);
-        rect(posX,posY,tamanioX,tamanioY);
+        //rect(posX,posY,tamanioX,tamanioY);
+        if(enemigoImagen != null){
+        image(enemigoImagen,posX,posY,tamanioX,tamanioY);
+        }
+        
         
         println("enemigo X: " + posX);
         println("enemigo Y: " + posY);
@@ -419,11 +438,12 @@ void setup() {
     strokeWeight(10);
     rect(100,100,800,500);// Esto ser[a remplazado con la imagen del game over
     
-    texto(Dialogos1[4],400,300,40);// "Game over"
-    texto("No pierdas la determinaci[on _inserteNick_ ",200,650,30);
-    texto("tu puedes derrotar a _inserteBossName_",200,700,30);
-    texto("Pulsa z para revivir", 300,800,30);
-    texto("Pulsa x para volver al menu",300, 820,30);
+    //texto(Dialogos1[4],400,300,40);// "Game over"
+    image(imagenGameOver, 100,100,800,500);
+    texto("No pierdas la determinaci[on ",270,650,30);
+    texto("tu puedes derrotar a la Etternidad",270,700,30);
+    texto("Pulsa z/Azul para revivir", 300,800,30);
+    texto("Pulsa x/Blanco para volver al menu",300, 820,30);
     if(entradaAceptar == 1) {
       salud = 1000;
       tiempoJuego = 0;
@@ -448,14 +468,22 @@ void setup() {
     rect(50,50,900,800);//Esto ser[ia remplazado por la imagen de portada del juego
     image(imagenMenu,50,50,900,800);
     
-    texto("Pulsa z para inciar", 400,700,40);
-    if(entradaAceptar == 1) {
+    //texto("Pulsa z para inciar", 400,700,40);
+    
+    if(entradaAceptar == 1 && entradaDerecha == 0) {
     selectorEscena = 1;
     eliminarTodosProyectiles();
     valoresOriginalesJuego();
     }
+    image(imagenPresiona,0,780,900,300);
   }
   void escenaJuego() {
+    //Animaciones
+    
+      if(tiempoJuego >10){
+        enemigoImagen = imagenEnemigo1;
+      }
+      
         //Caja de Batalla
         tiempoJuego++;
         
@@ -467,14 +495,18 @@ void setup() {
         int anchoCajaB = 500;
         int altoCajaB  = 400;
         rect(250,400,anchoCajaB,altoCajaB);
+        //rect(100,50,800,300);
+        image(imagenEtternidad,170,50,700,300);
         
         
         
         //Jugador
         fill(#E0E0E0);
         noStroke();
-        rect(JugadorX,JugadorY,50,50);
-        
+        //rect(JugadorX,JugadorY,50,50);
+        if(imagenJugador != null){
+        image(imagenJugador,JugadorX,JugadorY,50,50);
+        }
         //Proyectil de Prueba, comdddddentar al finalizar pruebas
           /*
         proyectilDePrueba.dibujar();
@@ -482,11 +514,12 @@ void setup() {
         proyectilDePrueba.collisionDetected();
           */
         
-        //Creacion de Proyectiles
+        //Creacion de Proyectiles 
         if(tiempoJuego == 10){
         crearProyectiles(10,20,40); // Horizontales 0-9
         crearProyectiles(10,20,40); // Verticales 10-19
         crearProyectiles(20,20,20);// Radiales centro 20-39
+        crearProyectiles(10,20,40); // Verticales 40-49
         }
         //Reproducci[on de audio
         if(tiempoJuego == 9) {
@@ -499,7 +532,7 @@ void setup() {
    
         //            PRIMERA MITAD
         
-        moverMultiProyectilHorizontal(10,370,0,9,1,100,0,300,1100,2);
+        moverMultiProyectilHorizontal(10, 370,0,9,1,100,0,300,1100,2);
         moverMultiProyectilHorizontal(ajusteTime + 360,ajusteTime + 800,5,9,1,100,0,110,0,2);
         moverMultiProyectilHorizontal(ajusteTime + 600,ajusteTime + 850,0,4,1,100,0,1100, -100,8);
         moverMultiProyectilVertical(ajusteTime + 750,ajusteTime + 850,10,19,1,100,10,0,1000,9);
@@ -531,45 +564,21 @@ void setup() {
         moverMultiProyectilVertical(ajusteTime + 2200,ajusteTime + 2250,12,18,2,100,10,1000,0,1000);
         moverMultiProyectilVertical(ajusteTime + 2250,ajusteTime + 2400,12,18,2,100,10,0,1000,8);
         
+        
         //AQUI VA EL SILENCIO: DIALGO DEL ENEMIGO
         if(tiempoJuego > 2500 && tiempoJuego <3100){
-          texto("Dialogo del enemigo",250,200,60);
+          texto("El fin est[a aqui",250,200,60);
         }
         
         //                        SEGUNDA MITAD: ATAQUE VELOZ
         moverMultiProyectilHorizontal(3150 + ajusteTime,3500 + ajusteTime,0,9,1,100,0,300,1100,4);
-        moverMultiProyectilRadialFuera(ajusteTime + 3550, ajusteTime + 4000,20,28,480,580,150,8);
+        moverMultiProyectilRadialFuera(ajusteTime + 3450, ajusteTime + 3500,20,28,480,580,400,1000);
+        moverMultiProyectilRadialDentro(ajusteTime + 3550, ajusteTime + 3650,20,28,480,580,400,5);
+        moverMultiProyectilRadialFuera(ajusteTime + 3650, ajusteTime + 4000,20,28,480,580,150,8);
+        moverMultiProyectilVertical(3600 + ajusteTime,3800 + ajusteTime,10,19,1,100,10,1100,0,4);
+        moverMultiProyectilVertical(3600 + ajusteTime,3800 + ajusteTime,40,49,1,100,40,1100,0,4);
         
-        //Movimiento del jugador
-        if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
-          JugadorX -= velocidadJugador;
-          movIzquierda = "Activo";
-          
-        }
-        else{
-          movIzquierda = "Suspendido";
-        }
-        if(entradaDerecha == 1 && JugadorX < 700){//Movimiento a la derecha
-          JugadorX += velocidadJugador;
-          movDerecha = "Activo";
-        }
-        else{
-          movDerecha = "Suspendido";
-        }
-        if(entradaArriba == 1 && JugadorY > 400){//Movimiento hacia arriba
-          JugadorY -= velocidadJugador;
-          movArriba = "Activo";
-        }
-        else{
-          movArriba = "Suspendido";
-        }
-        if(entradaAbajo == 1 && JugadorY < 750){//Moviemiento hacia abajo
-          JugadorY += velocidadJugador;
-          movAbajo = "Activo";
-        }
-        else{
-          movAbajo = "Suspendido";
-        }
+        
         
         
         
@@ -593,9 +602,9 @@ void setup() {
         
         //texto(Dialogos1[0],50,200);
       
-       texto(Dialogos1[numDialogo1],40,100,20);// Dibujado de texto
-       texto(Dialogos1[numDialogo2],150,150,30);//confirmaci[on de impato
-       
+       //texto(Dialogos1[numDialogo1],40,100,20);// Dibujado de texto
+       //texto("DERROTA DIOS",300,40,60);//confirmaci[on de impato
+       image(imagenDerrota, 200,0,700,100);
        //Prints para la consola
         println("entradaIzquierda " + entradaIzquierda + " Estado: " + movIzquierda);
         println("entradaDerecha   " + entradaDerecha +  " Estado: " + movDerecha);
@@ -693,3 +702,36 @@ int radio, int velocidad) {
     
   }
 }
+//Movimiento del jugador
+        
+        void movimientoJugador() {
+          if(entradaIzquierda == 1 && JugadorX > 250){//Movimiento a la izquierda
+            JugadorX -= velocidadJugador;
+            movIzquierda = "Activo";
+            
+          }
+          else{
+            movIzquierda = "Suspendido";
+          }
+          if(entradaDerecha == 1 && JugadorX < 700){//Movimiento a la derecha
+            JugadorX += velocidadJugador;
+            movDerecha = "Activo";
+          }
+          else{
+            movDerecha = "Suspendido";
+          }
+          if(entradaArriba == 1 && JugadorY > 400){//Movimiento hacia arriba
+            JugadorY -= velocidadJugador;
+            movArriba = "Activo";
+          }
+          else{
+            movArriba = "Suspendido";
+          }
+          if(entradaAbajo == 1 && JugadorY < 750){//Moviemiento hacia abajo
+            JugadorY += velocidadJugador;
+            movAbajo = "Activo";
+          }
+          else{
+            movAbajo = "Suspendido";
+          }
+        }
