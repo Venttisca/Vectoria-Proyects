@@ -6,6 +6,7 @@ import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
 Minim minim;
 AudioPlayer temaBatalla;
+AudioPlayer gameOver;
 
   import cc.arduino.*;
   import org.firmata.*;
@@ -35,14 +36,21 @@ AudioPlayer temaBatalla;
   int intervalo = 16;//milisegundos
   int tiempoAnterior = 0;
   int selectorEscena = 0; // 0 menu, 1 Juego, 2 muerte
-  int ajusteTime = 0;// Esto es para corregir timing en general
+  int ajusteTime = -20;// Esto es para corregir timing en general
   PImage enemigoImagen = imagenEnemigo1;
   int contadorEnemigo;
+  //Delta Time
+  float fixedDeltaTime = 1.0 / 60.0; // 60 FPS, tiempo fijo por cuadro (en segundos)
+  float accumulatedTime = 0.0;       // Tiempo acumulado entre actualizaciones
+  int lastFrameTime;                 // Tiempo del último cuadro (en milisegundos)
+  float deltaTime;
+
+  
   //Ajuste de timing para Thinkpad: 80
 //Configuracion de escenas
   boolean primeraAccionJuego = true;
   boolean primeraAccionMenu  = true;
-  int tiempoJuego = 0;// esto cuenta los fotogramas que han pasado
+  float tiempoJuego = 0;// esto cuenta los fotogramas que han pasado
   
 //Aqui van los dialogos que se van a mostrar
   String[] Dialogos1 = {
@@ -90,7 +98,14 @@ AudioPlayer temaBatalla;
 void setup() {
   size(1000,1000);
   background(#110025);
+  texto("cargando...",300,500,70);
+  //Delta Time
+  frameRate(80);   // Intenta mantener 60 FPS (solo para dibujar)
+  lastFrameTime = millis();        // Inicializa el tiempo del último cuadro
   //Carga de documentos
+  
+  delay(10);
+  
   imagenMenu = loadImage("PortadaDelJuego.png");
   imagenEnemigo1 = loadImage("enemigo1.png");
   imagenEnemigo2 = loadImage("enemigo2.png");
@@ -101,17 +116,17 @@ void setup() {
   imagenPresiona = loadImage("presiona.png");
   proyectilDePrueba = new Proyectil(0,0,20,40, color(#E0E0E0));
   proyectiles = new ArrayList<Proyectil>();
-  texto("cargando...",300,500,70);
+  
   //Minim
     //Carga de audio
     minim = new Minim(this);
     temaBatalla = minim.loadFile("TrueLove.mp3");
-    
-    
+    gameOver = minim.loadFile("determination.mp3");
+  
   
   //Arduino
-  
-  arduino = new Arduino(this,Arduino.list()[1],57600);
+  /*
+  arduino = new Arduino(this,Arduino.list()[0],57600);
  
   
   arduino.pinMode(6,Arduino.INPUT_PULLUP);
@@ -120,7 +135,7 @@ void setup() {
   arduino.pinMode(9,Arduino.INPUT_PULLUP);
   arduino.pinMode(10,Arduino.INPUT_PULLUP);
   arduino.pinMode(11,Arduino.INPUT_PULLUP);
-  
+  */
 }
   
 
@@ -134,10 +149,26 @@ void setup() {
   
   
   void draw() {
-   // int tiempoActual = millis();
-   // if(tiempoActual - tiempoAnterior >= intervalo) {
+   
      
-     //Lectura de arduino
+       // Calcula deltaTime real entre cuadros
+  int currentFrameTime = millis();
+  deltaTime = (currentFrameTime - lastFrameTime) / 1000.0; // En segundos
+  lastFrameTime = currentFrameTime;
+
+  // Acumula el tiempo transcurrido
+  accumulatedTime += deltaTime;
+
+  // Procesa actualizaciones de lógica en pasos fijos
+  while (accumulatedTime >= fixedDeltaTime) {
+    updateGameLogic(fixedDeltaTime); // Actualiza la lógica del juego
+    accumulatedTime -= fixedDeltaTime; // Resta el tiempo procesado
+  }
+
+  // Renderiza el juego
+  drawRender();
+  }
+  void drawRender() {
       
         //valoresOriginalesEntrada();
         if(primeraAccionJuego == true){
@@ -189,7 +220,7 @@ void setup() {
       
       
       //Lectura de botones Arduino
-      
+      /*
       if(arduino.digitalRead(7) == 0){
         entradaArriba = 1;
       }
@@ -208,6 +239,7 @@ void setup() {
       if(arduino.digitalRead(11) == 0){
         entradaRechazar = 1;
       }
+      */
       movimientoJugador();
       
       
@@ -243,7 +275,10 @@ void setup() {
   //}//cierre de la actualizacion controlada
     
   }
-  
+  void updateGameLogic(float deltaTime) {
+  // Aquí pones toda tu lógica del juego (movimientos, colisiones, etc.)
+  println("Updating logic with fixedDeltaTime: " + deltaTime);
+}
   
   
   //Herramienta de Creaci[on de texto
@@ -432,6 +467,10 @@ void setup() {
     temaBatalla.pause();
     temaBatalla.rewind();
     
+   
+    gameOver.play();
+        
+    
     background(#110025);
     fill(#110025);
     stroke(#E0E0E0);
@@ -449,13 +488,16 @@ void setup() {
       tiempoJuego = 0;
       selectorEscena = 1;//Escena de Juego
       eliminarTodosProyectiles();
+      gameOver.pause();
+      gameOver.rewind();
     }
     if(entradaRechazar == 1) {
       salud = 1000;
       tiempoJuego = 0;
       selectorEscena = 0;//Escena Menu
       eliminarTodosProyectiles();
-      
+      gameOver.pause();
+      gameOver.rewind();
       
     }
   }
@@ -485,7 +527,7 @@ void setup() {
       }
       
         //Caja de Batalla
-        tiempoJuego++;
+        tiempoJuego += 40 *deltaTime; //45
         
         //control de musica
         
@@ -515,14 +557,14 @@ void setup() {
           */
         
         //Creacion de Proyectiles 
-        if(tiempoJuego == 10){
+        if(proyectiles.size() == 0){
         crearProyectiles(10,20,40); // Horizontales 0-9
         crearProyectiles(10,20,40); // Verticales 10-19
         crearProyectiles(20,20,20);// Radiales centro 20-39
         crearProyectiles(10,20,40); // Verticales 40-49
         }
         //Reproducci[on de audio
-        if(tiempoJuego == 9) {
+        if(tiempoJuego < 9 && !temaBatalla.isPlaying()) {
           temaBatalla.rewind();
           temaBatalla.play();
         }
@@ -533,10 +575,10 @@ void setup() {
         //            PRIMERA MITAD
         
         moverMultiProyectilHorizontal(10, 370,0,9,1,100,0,300,1100,2);
-        moverMultiProyectilHorizontal(ajusteTime + 360,ajusteTime + 800,5,9,1,100,0,110,0,2);
+        moverMultiProyectilHorizontal(ajusteTime + 360,ajusteTime + 800,5,9,1,100,0,1100,0,2);
         moverMultiProyectilHorizontal(ajusteTime + 600,ajusteTime + 850,0,4,1,100,0,1100, -100,8);
         moverMultiProyectilVertical(ajusteTime + 750,ajusteTime + 850,10,19,1,100,10,0,1000,9);
-        moverMultiProyectilHorizontal(ajusteTime + 850,ajusteTime + 1000,0,9,1,100,0,-50,1050,10);
+        moverMultiProyectilHorizontal(ajusteTime + 850,ajusteTime + 1000,0,9,1,100,0,0,1050,10);
         moverMultiProyectilVertical(ajusteTime + 900,ajusteTime + 1000,10,19,1,100,10,1000,0,10);
         moverMultiProyectilVertical(ajusteTime + 1000,ajusteTime + 1200,10,18,2,100,10,0,1000,10);
         moverMultiProyectilVertical(ajusteTime + 1050,ajusteTime + 1200,11,19,2,100,10,0,1000,10);
@@ -633,11 +675,14 @@ void setup() {
    int restaI, int posY, int destinoY, int velocidad) {
         if(tiempoJuego > inicio && tiempoJuego < fin) {
           for(int i = primero; i<= ultimo; i+= incremento){
-            Proyectil p = proyectiles.get(i);
+            if( proyectiles != null) {
+              Proyectil p = proyectiles.get(i);
+              
+              int incrementoE = (i - restaI) * espaciado;
             
-            int incrementoE = (i - restaI) * espaciado;
-            p.movimiento(incrementoE,posY, incrementoE, destinoY,velocidad);
-            p.collisionDetected();
+              p.movimiento(incrementoE,posY, incrementoE, destinoY,velocidad);
+              p.collisionDetected();
+            }
           }
         }
      }
