@@ -7,6 +7,7 @@ import ddf.minim.ugens.*;
 Minim minim;
 AudioPlayer temaBatalla;
 AudioPlayer gameOver;
+AudioPlayer StartMenu;
 
   import cc.arduino.*;
   import org.firmata.*;
@@ -122,6 +123,7 @@ void setup() {
     minim = new Minim(this);
     temaBatalla = minim.loadFile("TrueLove.mp3");
     gameOver = minim.loadFile("determination.mp3");
+    StartMenu = minim.loadFile("StartMenu.mp3");
   
   
   //Arduino
@@ -457,7 +459,13 @@ void setup() {
       println("Restando salud");
       }
     }
-    fill(#E0E0E0);
+    int colorVida;
+    if(coldownDanioRecibido == 0){
+      colorVida = (#E0E0E0);
+    }else{
+      colorVida = (#C47979);
+    }
+    fill(colorVida);
     rect(200,850,salud/2,50);
     
     println("Barra de vida: " + salud);
@@ -509,6 +517,11 @@ void setup() {
     strokeWeight(10);
     rect(50,50,900,800);//Esto ser[ia remplazado por la imagen de portada del juego
     image(imagenMenu,50,50,900,800);
+    StartMenu.play();
+    if(!StartMenu.isPlaying()){
+      //StartMenu.rewind();
+      StartMenu.play();
+    }
     
     //texto("Pulsa z para inciar", 400,700,40);
     
@@ -516,6 +529,8 @@ void setup() {
     selectorEscena = 1;
     eliminarTodosProyectiles();
     valoresOriginalesJuego();
+    StartMenu.rewind();
+    StartMenu.pause();
     }
     image(imagenPresiona,0,780,900,300);
   }
@@ -558,10 +573,10 @@ void setup() {
         
         //Creacion de Proyectiles 
         if(proyectiles.size() == 0){
-        crearProyectiles(10,20,40); // Horizontales 0-9
-        crearProyectiles(10,20,40); // Verticales 10-19
+        crearProyectiles(10,30,40); // Horizontales 0-9
+        crearProyectiles(10,30,40); // Verticales 10-19
         crearProyectiles(20,20,20);// Radiales centro 20-39
-        crearProyectiles(10,20,40); // Verticales 40-49
+        crearProyectiles(10,30,40); // Verticales 40-49
         }
         //Reproducci[on de audio
         if(tiempoJuego < 9 && !temaBatalla.isPlaying()) {
